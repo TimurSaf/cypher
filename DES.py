@@ -1,4 +1,19 @@
 def key_gen(key56: bytes):
+    """
+    Генерирует 16 ключей по 48 бит для алгоритма DES из 56-битного ключа.
+
+    :param key56: 56-битный ключ в байтовом формате.
+    :type key56: bytes.
+    :raise TypeError: Возникает, когда key56 не байтовая строка.
+    :raise ValueError: Возникает, когда key56 другой длины(не семь).
+    :return: Список из 16 ключей по 48 бит в двоичном формате.
+    :rtype: list.
+    """
+    if not isinstance(key56, bytes):
+        raise TypeError
+    if not (len(key56) == 7):
+        raise ValueError
+
     key64 = ""
     key56 = key56.hex()
     bin_key56 = "".join((bin(int(key56[i:i+2], 16))[2:]).zfill(8) for i in range(0, len(key56), 2))
@@ -27,12 +42,41 @@ def key_gen(key56: bytes):
 
 
 def pkcs5(string_bytes: bytes):
+    """
+    Применяет схему дополнения PKCS#5 к строке байтов.
+
+    :param string_bytes: Строка байтов, которая будет дополнена.
+    :type string_bytes: bytes.
+    :raise TypeError: string_bytes должен быть байтовой строкой.
+    :return: Дополненная строка байтов с использованием схемы PKCS#5.
+    :rtype: bytes.
+    """
+    if not isinstance(string_bytes, bytes):
+        raise TypeError
+
     num_add = 8 - len(string_bytes)
-    ans = string_bytes + bytes(num_add) * num_add
+    ans = string_bytes + bytes([num_add]) * num_add
     return ans
 
 
 def feistel(r: str, key: str):
+    """
+    Выполняет функцию Фейстеля для одного раунда DES.
+
+    :param r: Правый полу блок в двоичном формате.
+    :type r: str.
+    :param key: Ключ в двоичном формате для данного раунда.
+    :type key: str.
+    :raise TypeError: Возникает, когда Или r, или key не являются строками.
+    :raise ValueError: Выбрасывает это исключение, когда длина r или key не 32 и 48 соответственно.
+    :return: Результат применения функции Фейстеля в двоичном формате.
+    :rtype: str.
+    """
+    if not isinstance(r, str) or not isinstance(key, str):
+        raise TypeError
+    if not (len(r) == 32) or not (len(key) == 48):
+        raise ValueError
+
     e = [32, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 12, 13, 14, 15, 16, 17,
          16, 17, 18, 19, 20, 21, 20, 21, 22, 23, 24, 25, 24, 25, 26, 27, 28, 29, 28, 29, 30, 31, 32, 1]
     er = "".join([r[i-1] for i in e])
@@ -85,6 +129,29 @@ def feistel(r: str, key: str):
 
 
 def des(blok: bytes, key: bytes, mode="encrypt"):
+    """
+    Шифрует или расшифровывает блок данных с использованием алгоритма DES.
+
+    :param blok: Блок данных, который необходимо зашифровать или расшифровать, должен быть в формате байтов.
+    :type blok: bytes.
+    :param key: Ключ для шифрования или расшифрования. Должен быть в формате байтов.
+    :type key: bytes.
+    :param mode: Режим работы функции. Может быть "encrypt" для шифрования
+                 или "decrypt" для расшифрования. По умолчанию "encrypt".
+    :raise TypeError: Возникает, если blok или key не того типа.
+    :raise ValueError: Возникает, если длина blok или key не равна 64 и 56 соответственно,
+                       или может возникнуть, если mode не принимает значение "encrypt" или "decrypt".
+    :return: Зашифрованный или расшифрованный блок данных в двоичном формате.
+             Возвращает строку, представляющую битовую последовательность
+             зашифрованного или расшифрованного блока.
+    :rtype: str.
+    """
+    if not isinstance(blok, bytes) or not isinstance(key, bytes):
+        raise TypeError
+    if not (len(blok) == 64) or not (len(key) == 56):
+        raise ValueError
+    if not (mode in ["encrypt", "decrypt"]):
+        raise ValueError
     ip = [58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4,
           62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16, 8,
           57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3,
