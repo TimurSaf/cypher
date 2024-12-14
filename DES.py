@@ -148,7 +148,7 @@ def des(blok: bytes, key: bytes, mode="encrypt"):
     """
     if not isinstance(blok, bytes) or not isinstance(key, bytes):
         raise TypeError
-    if not (len(blok) == 64) or not (len(key) == 56):
+    if not (len(blok) == 8) or not (len(key) == 7):
         raise ValueError
     if not (mode in ["encrypt", "decrypt"]):
         raise ValueError
